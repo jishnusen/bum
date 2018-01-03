@@ -9,6 +9,8 @@ Created by Dylan Araps
 """
 import argparse
 import pathlib
+import time
+from gi.repository import Playerctl, GLib
 
 from . import display
 from . import song
@@ -53,17 +55,16 @@ def main():
     process_args(args)
 
     disp = display.init(args.size)
-    client = song.init(args.port)
+    client = Playerctl.Player(player_name='spotify')
 
+    song.get_art(args.cache_dir, args.size, client)
+    display.launch(disp, args.cache_dir / "current.jpg")
+    
     while True:
+        player_status = client.get_album()
+        time.sleep(3)
         song.get_art(args.cache_dir, args.size, client)
         display.launch(disp, args.cache_dir / "current.jpg")
-        client.send_idle()
-
-        if client.fetch_idle(["player"]):
-            print("album: Received player event from mpd. Swapping cover art.")
-            continue
-
 
 if __name__ == "__main__":
     main()

@@ -3,28 +3,23 @@ Get song info.
 """
 import shutil
 import os
-import mpd
 import time
+from gi.repository import Playerctl, GLib
 
 from . import util
 
 
-def init(port=6600):
-    """Initialize mpd."""
-    client = mpd.MPDClient()
-
-    try:
-        client.connect("localhost", port)
-        return client
-
-    except ConnectionRefusedError:
-        print("error: Connection refused to mpd/mopidy.")
-        os._exit(1)  # pylint: disable=W0212
-
-
+def init():
+    print("initialized")
+    player = Playerctl.Player(player_name='spotify')
 def get_art(cache_dir, size, client):
     """Get the album art."""
-    song = client.currentsong()
+    
+    player = Playerctl.Player(player_name='spotify')
+    song = {
+            'artist' : player.get_artist(),
+            'album' : player.get_album(),
+    }
 
     if len(song) < 2:
         print("album: Nothing currently playing.")
